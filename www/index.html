@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="msapplication-tap-highlight" content="no" />
+        <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+        <link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css" />
+		<link rel="stylesheet"  type="text/css" href="css/jquery.jqplot.min.css" type="text/css">
+		<link rel="stylesheet"  type="text/css" href="css/autoSuggest.css" type="text/css">
+		<title>Indoor Navigation</title>
+    </head>
+    <body>
+		<div class="container">
+			<div class="span-24 last prepend-top">
+				<h1>Indoor Navigation</h1>
+				<p>
+<div class="ui-content" data-role="main"><form>
+<div class="ui-field-contain">
+	<b>Start</b> 
+	<input id="room1" name="room1" value="oe:Office_306"/><br/>
+	<b>Target</b> 
+	<input id="room2" name="room2" value="oe:PC_Labor_212"/>
+</div>
+<input type="submit" value="Submit" data-inline="true" />
+</form>
+</div>
+					</div>
+					
+					<div id="q1"
+						data-spark-endpoint="http://lod.nik.uni-obuda.hu/marmotta/sparql"
+						data-spark-format="http://km.aifb.kit.edu/sites/spark/src/jquery.spark.simpletable.js"
+						data-spark-query='
+prefix iloc: &lt;http://lod.nik.uni-obuda.hu/oloud-indoor#&gt;
+select DISTINCT ?sl ?l1 ?l2 ?l3 ?l4 ?l5 ?el ?distance where {
+
+BIND (&lt;{room1}&gt; AS ?start ).
+BIND (&lt;{room2}&gt; AS ?end).
+OPTIONAL {?start rdfs:label ?sl.}
+OPTIONAL {?p1 rdfs:label ?l1.}
+OPTIONAL {?p2 rdfs:label ?l2.}
+OPTIONAL {?p3 rdfs:label ?l3.}
+OPTIONAL {?p4 rdfs:label ?l4.}
+OPTIONAL {?p5 rdfs:label ?l5.}
+OPTIONAL {?end rdfs:label ?el.}
+?p1 iloc:connectsPOI ?p2.
+?p2 iloc:connectsPOI ?p3.
+?p3 iloc:connectsPOI ?p4.
+?p4 iloc:connectsPOI ?p5.
+{?plast iloc:belongsToRoom ?end. ?p1 iloc:belongsToRoom ?start.}
+UNION {?plast iloc:connectsPOI ?end. ?p1 iloc:connectsPOI ?start.}
+UNION {?plast iloc:belongsToRoom ?end. ?p1 iloc:connectsPOI ?start.}
+UNION {?plast iloc:connectsPOI ?end. ?p1 iloc:belongsToRoom ?start.}
+FILTER (?p5 = ?plast || ?p4 = ?plast || ?p3 = ?plast || ?p2 = ?plast || ?p1 = ?plast ).
+BIND (if( ?p5 = ?plast , 5, if( ?p4 = ?plast , 4, if( ?p3 = ?plast , 3, if( ?p2 = ?plast , 2, if( ?p1 = ?plast , 1, -1))))) AS ?distance).
+} ORDER BY ?distance LIMIT 1'>
+
+					</div>
+				</p>
+			</div>
+		</div>
+
+        <div id="dev-null" style="display: none"></div>
+        <script src="js/jquery-1.4.4.js"></script>
+        <script type="text/javascript" src="cordova.js"></script>
+		<script type="text/javascript" src="js/jquery.spark.js"></script>
+		<script type="text/javascript" src="js/jquery.jqplot.js"></script>
+		<script type="text/javascript" src="js/jqplot.pieRenderer.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript" src="js/jquery.autoSuggest.js"></script>
+        <script type="text/javascript" src="js/querier.js"></script>
+
+    </body>
+</html>
